@@ -1,8 +1,12 @@
 
 import sys
+from io import StringIO
+
+test_start = "testStarted id=”5” name = “Test Name”"
+test_finished = "testFinished id=”5” duration=”100” result=FAIL error=”Error Text”"
 
 class Test:
-    def __init__(self, type, id, name=None, duration=None, result=None, error=None):
+    def __init__(self, type:str, id:int, name:str=None, duration:float=None, result:str=None, error:str=None):
         self.type = type
         self.id = id
         self.name = name
@@ -14,17 +18,19 @@ class Test:
         return f'{self.type} {self.id} {self.name} {self.duration} {self.result} {self.error}'
     
 
-def main():
+def print_to_stdout() -> None:
+    print(test_start)
+    print(test_finished)
 
-    if len(sys.argv) < 2:
-        print('Please provide a file name')
-        sys.exit(1)
-    file_name = sys.argv[1]
-    file_content = read_file(file_name)
+def main():
+    stdout_buffer = StringIO()
+    sys.stdout = stdout_buffer
+    print_to_stdout()
+    sys.stdout = sys.__stdout__
+    file_content = stdout_buffer.getvalue()
     tokens = process_test_output(file_content)
     test_aggregation_data = calculate_test_aggregation_data(tokens)
     print_test_aggregation_logs(test_aggregation_data)
-
 
 def calculate_test_aggregation_data(test: list) -> dict:
     data = {}
